@@ -1,27 +1,29 @@
 <template>
     <div class="container">
         <b-card class="g-box g-top">
-            <h2 class="">Log in</h2>
+            <h4 class="">Log in</h4>
+            <p>Need a mPower account? <b-link router-link :to="{ name: 'Signup' }" style="color: green">Create account</b-link></p>
+            <!-- <label for="email">Email:</label>
+            <b-form-input id="email" v-model.trim="email" type="email"> </b-form-input>
+            <label for="password">Password:</label>
+            <b-form-input id="password" v-model.trim="password" type="password"> </b-form-input> -->
 
-            <p>If you don't have an account? <b-link href="#foo">Sign up</b-link>
-                <!-- <label for="email">Email:</label>
-                <b-form-input id="email" v-model.trim="email" type="email"> </b-form-input>
-                <label for="password">Password:</label>
-                <b-form-input id="password" v-model.trim="password" type="password"> </b-form-input> -->
-
-                <b-form class="g-top" @submit.prevent="login">
-                    <b-form-group id="email" label="" label-for="email">
-                        <b-form-input id="email" type="email" v-model="email" required
-                                    placeholder="Enter email">
-                        </b-form-input>
-                    </b-form-group>
-                    <b-form-group id="password" label="" label-for="pwd">
-                        <b-form-input id="pwd" type="password" v-model="password" required
-                                    placeholder="Enter password">
-                        </b-form-input>
-                    </b-form-group>
-                </b-form>
-                <b-button class="g-top" @click="login()" variant="success" block>Log in</b-button>
+            <b-form class="g-top" @submit.prevent="login">
+                <b-form-group id="email" label="" label-for="email">
+                    <b-form-input id="email" type="email" v-model="email" required
+                                placeholder="Email">
+                    </b-form-input>
+                </b-form-group>
+                <b-form-group id="password" label="" label-for="pwd">
+                    <b-form-input id="pwd" type="password" v-model="password" required
+                                placeholder="Password">
+                    </b-form-input>
+                </b-form-group>
+            </b-form>
+            <b-button class="g-top" @click="login()" variant="success" block>Log in</b-button>
+            <p style="margin-top: 0.7em">
+                <b-link @click="forgotUsername()" style="color: green">Forgot username?</b-link>
+                <b-link @click="forgotPassword()" style="color: green">Forgot password?</b-link>
             </p>
         </b-card>
      </div>

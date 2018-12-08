@@ -32,7 +32,7 @@
                     <b-nav-item-dropdown v-if="user" right > 
                         <!-- Using button-content slot -->
                         <template slot="button-content">
-                        <em>User</em>
+                            <em>{{ this.user.email }}</em>
                         </template>
                         <b-dropdown-item href="#">Profile</b-dropdown-item>
                         <b-dropdown-item href="#" @click="logout()">Signout</b-dropdown-item>
@@ -70,7 +70,9 @@ export default {
         isLoggedIn() {
             // console.log('isLoggedIn', this.user)
             return (this.user != null)
-        },
+        }
+    },
+    methods: {
         logout: function () {
             console.log('logging out...')
             firebase.auth().signOut()
@@ -81,9 +83,6 @@ export default {
         showProfile: function () {
             console.log('show profile')
         }
-    },
-    methods: {
-
     },
     created() {      
         firebase.auth().onAuthStateChanged((user) => {

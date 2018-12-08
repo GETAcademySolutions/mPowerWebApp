@@ -1,7 +1,7 @@
 <template>
 <div class="container text-center">
-              <h3 class="g-top ">Charge any <br>device on the go</h3>
-              <br>
+        <h4 class="g-top">Charge any <br>device on the go</h4>
+        <br>
         <b-button variant="success" @click="signup()">Sign up</b-button>
         <br>
         <p class="g-sec">Got a code? <b-link class="g-link">Redeem One time Charging</b-link></p>
@@ -27,10 +27,10 @@ export default {
         }
     },
     mounted() {
-        // this.user = firebase.auth().currentUser
-        // if (this.user) {
-        //     this.$router.push({ name: 'HomePage' })
-        // }
+        this.user = firebase.auth().currentUser
+        if (this.user) {
+            this.$router.push({ name: 'HomePage' })
+        }
     }
 }
 </script>

@@ -1,5 +1,11 @@
 # webapp
 
+git init
+git add README.md
+git commit -m "first commit"
+git remote add origin https://github.com/edgarnyhus/mPowerWebApp.git
+git push -u origin master
+
 > A Vue.js project
 
 ## Build Setup
