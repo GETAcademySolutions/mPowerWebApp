@@ -9,17 +9,9 @@
         <!-- list active charges -->
         <charging-list :charges="charges"></charging-list>
 
-        <b-card class="g-card" style="background: #00b656; margin-top: 1em; border-radius: 8px">
-            <h5 class="card-title" style="color: white">Charge with credits</h5>
-            <p class="card-title" style="color: white">Sign up and load your mPower account. Unlock a charger at eny time with your mobile phone</p>
-            <b-button block variant="outline-success" style="margin-top: 1.5em; color: white; border-color: white">Charge with credits</b-button>
-        </b-card>
-        
-        <b-card class="g-card" style="margin-top: 1em; border-radius: 8px">
-            <h5 class="card-title">Charge with code</h5>
-            <p class="card-title">Pay for charging at one of the mPower stations and get a one time charging code.</p>
-            <b-button block variant="outline-secondary" style="margin-top: 1.5em">Charge with code</b-button>
-        </b-card>
+        <charge-with-credits v-on:startChargeWithCredits="startChargeWithCredits()"></charge-with-credits>
+        <charge-with-code v-on:startChargeWithCode="startChargeWithCode()"></charge-with-code>
+
         <div style="margin-bottom: 2em"></div>
     </div>
 </template>
@@ -28,12 +20,16 @@
 import firebase from 'firebase'
 import db from '@/firebase/init'
 import ChargingList from '@/components/charging/ChargingList'
-import Charging from '@/components/classes/charging.js'
+import ChargeWithCredits from '@/components/charging/ChargeWithCredits'
+import ChargeWithCode from '@/components/charging/ChargeWithCode'
+import {Charging, ChargingTimer} from '@/components/classes/charging.js'
 
 export default {
     name: 'HomePage',
     components: {
-        ChargingList
+        ChargingList,
+        ChargeWithCredits,
+        ChargeWithCode
     },
     data() {
         return {
@@ -53,6 +49,12 @@ export default {
                 return true
             return false
         },
+        startChargeWithCredits() {
+            colsole.log('startChargeWithCredits')
+        },
+        startChargeWithCode() {
+            colsole.log('startChargeWithCode')
+        },
         getProfile() {
             db.collection('users').where('user_id', '==', this.user.uid)
             .get()
@@ -69,9 +71,37 @@ export default {
                 alert(error)
             })
         },
+        getCharges() {
+            db.collection('charges').where('user_id', '==', this.user.uid)
+            .where('timeLeft', '>', 0)
+            .get()
+            .then(snapshot => {
+                snapshot.forEach(doc => {
+                    let charging = doc.data
+                    charging.id = doc.id
+                    this.charges.push(charging)
+                    console.log('charging added', charging)
+
+                    let timer = new ChargingTimer(c)
+                    .then((id) => {
+                        console.log('charging finished', id)
+                        //remove charging element
+                    })
+                })
+            })
+            .catch(error=> {
+                console.log('fetching user charges', error)
+                alert(error)
+            })
+        },
         simCharge() {
-            let c = new Charging(2)
-            this.charges.push(c)
+            let charging = new Charging(2, this.user.uid)
+            let timer = new ChargingTimer(charging)
+            .then((id) => {
+                console.log('charging finished', id)
+                //remove charging element
+            })
+            this.charges.push(charging)
         }
 
     },
