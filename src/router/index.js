@@ -4,9 +4,10 @@ import firebase from 'firebase'
 import HelloWorld from '@/components/HelloWorld'
 import StartPage from '@/components/startpage/StartPage'
 import Map from '@/components/map/Map'
-import HomePage from '@/components/home/HomePage'
 import Login from '@/components/auth/Login'
 import Signup from '@/components/auth/Signup'
+import HomePage from '@/components/home/HomePage'
+import Charge from '@/components/charging/Charge'
 
 Vue.use(Router)
 
@@ -30,14 +31,6 @@ const router =  new Router({
             component: Map
         },
         {
-            path: '/home',
-            name: 'HomePage',
-            component: HomePage,
-            meta: {
-                requiresAuth: true
-            }
-        },
-        {
             path: '/login',
             name: 'Login',
             component: Login
@@ -46,6 +39,19 @@ const router =  new Router({
             path: '/signup',
             name: 'Signup',
             component: Signup
+        },
+        {
+            path: '/home',
+            name: 'HomePage',
+            component: HomePage,
+            meta: {
+                requiresAuth: true
+            }
+        },
+        {
+            path: '/charge',
+            name: 'Charge',
+            component: Charge,
         }
     ]
 })

@@ -7,9 +7,14 @@ import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import moment from 'moment'
+import {mPowerBluetoothController, mPowerBluetoothControllerDummy} from "@/bluetooth/mPowerBluetoothController.js";
+// import {PowerstationManager, PowerstationManagerDummy} from "@/bluetooth/PowerstationManager.js";
+
+const controller = new mPowerBluetoothController();
 
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false
+
 
 /* eslint-disable no-new */
 new Vue({
@@ -17,6 +22,13 @@ new Vue({
   router,
   components: { App },
   template: '<App/>'
+})
+
+Vue.prototype.$controller =  new mPowerBluetoothController()
+new Vue({
+    beforeCreate: function() {
+        console.log('Ve instance', this.$controller.isConnected)
+    }
 })
 
 Vue.filter('secondsToTime', function(secs) {

@@ -1,11 +1,12 @@
 <template>
-    <div class="signup g-frame container">
+    <div class="container g-top g-box">
         <b-card>
             <h4>Create an account</h4>
-            <p class="g-group">
-                Allready have an account? <router-link :to="{ name: 'Login' }" style="color: green">Log in</router-link>
+            <p class="">
+                Already have an account? <router-link :to="{ name: 'Login' }" style="color: green">Log in</router-link>
             </p>
-            <b-form  @submit.prevent="signup">
+            <error-feedback v-if="feedback" :message="feedback"></error-feedback>
+            <b-form class="g-top" @submit.prevent="signup">
                 <b-form-group>
                     <!-- <label for="alias">Username</label> -->
                     <b-form-input id="username" type="text" @change="feedback = null" placeholder="Username" v-model="username" required></b-form-input>
@@ -26,7 +27,7 @@
                     <!-- <label for="confirmPassword"Confirm password</label> -->
                     <b-form-input id="confirmPassword"  type="password" @change="feedback = null" placeholder="Confirm password" v-model="confirmPassword" required></b-form-input>
                 </b-form-group>
-                <b-form-group class="g-m2">
+                <b-form-group class="g-top">
                     <b-button class="" variant="success" block @click="signup()">Sign up</b-button>
                     <!-- <b-btn v-b-modal.consent class="g-span" variant="info">Registrer</b-btn> -->
                 </b-form-group>
@@ -34,9 +35,6 @@
             <p>By clicking the button, you agree to<br>
                 <b-link v-b-modal.consent style="color: green">mPowers Policy & terms of Use</b-link>
             </p>
-            <!-- <p-check color="info" v-model="accepted">Jeg godtar KOMPIS sine<b-link>Vilkår for Personvern</b-link></p-check> -->
-
-            <p v-if="feedback" class="" style="margin-top: 1em; color: red">{{ feedback }}</p>
         </b-card>
 
         <keep-alive>
@@ -60,11 +58,13 @@ import firebase from 'firebase'
 import functions from 'firebase/functions'
 import slugify from 'slugify'
 import pdf from 'vue-pdf'
+import ErrorFeedback from '@/components/common/ErrorFeedback'
 
 var loadingTask = pdf.createLoadingTask('./static/PolicyAndTermsOfUse.pdf');
 
 export default {
     components: {
+        ErrorFeedback,
         pdf
     },
     name: 'Signup',
@@ -149,11 +149,11 @@ export default {
             } else {
                 console.log('an invalid email address')
             }
-            let ref = db.collection('users').doc(slug)
+            let ref = db.collection('users').doc(this.data.slug)
             ref.get()
             .then(doc => {
                 if (doc.exists) {
-                    this.feedback = 'This username is allready in use. Pick another.'
+                    this.feedback = 'This username is already in use. Pick another.'
                 } else {
                     firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
                     .then(cred => {
@@ -192,15 +192,14 @@ export default {
 </script>
 
 <style scoped>
-.g-frame {
+.g-top {
     margin-top: 2em;
-    min-width: 400px;
-    max-width: 480px;
-    height: 480px;
-    align-self: center; 
 }
-.g-m2 {
-    margin-top: 1.5em;
+.g-box {
+    margin: auto;
+    min-width: 380px;
+    max-width: 50%;
+    margin-top: 2em;
 }
 .g-span {
     margin-left: 1em;

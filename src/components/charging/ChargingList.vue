@@ -11,17 +11,25 @@
                     </b-col>
                 </b-row>
                 <p class="g-text" style="margin-bottom: 0; margin-top: 0">Device: {{ elem.device }}</p>
-                <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.timeLeft | secondsToTime }}</p>
-                <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finishedAt | formatTime }}</p>
+                <div v-if="elem.timeLeft > 0">
+                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.timeLeft | secondsToTime }}</p>
+                    <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finishedAt | formatTime }}</p>
+                </div>
+                <error-feedback v-else :message="message" :fontsize="fontsize" style="margin-top: 0.3em; margin-bottom: 0.3em; font-size: 40px"></error-feedback>
             </b-card>
         </div>
     </div>
 </template>
 
 <script>
+import ErrorFeedback from '@/components/common/ErrorFeedback'
+
 export default {
     name: 'ChargingList',
-    props: ['charges'],
+    components: {
+        ErrorFeedback
+    },
+    props: ['charges', 'message', 'fontsize'],
     data() {
         return {
 

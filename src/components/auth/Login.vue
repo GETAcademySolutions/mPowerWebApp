@@ -3,19 +3,15 @@
         <b-card class="g-box g-top">
             <h4 class="">Log in</h4>
             <p>Need a mPower account? <b-link router-link :to="{ name: 'Signup' }" style="color: green">Create account</b-link></p>
-            <!-- <label for="email">Email:</label>
-            <b-form-input id="email" v-model.trim="email" type="email"> </b-form-input>
-            <label for="password">Password:</label>
-            <b-form-input id="password" v-model.trim="password" type="password"> </b-form-input> -->
-
+            <error-feedback v-if="feedback" :message="feedback"></error-feedback>
             <b-form class="g-top" @submit.prevent="login">
                 <b-form-group id="email" label="" label-for="email">
-                    <b-form-input id="email" type="email" v-model="email" required
+                    <b-form-input id="email" type="email" @change="feedback=null" v-model="email" required
                                 placeholder="Email">
                     </b-form-input>
                 </b-form-group>
                 <b-form-group id="password" label="" label-for="pwd">
-                    <b-form-input id="pwd" type="password" v-model="password" required
+                    <b-form-input id="pwd" type="password" @change="feedback=null" v-model="password" required
                                 placeholder="Password">
                     </b-form-input>
                 </b-form-group>
@@ -32,9 +28,13 @@
 <script>
 import firebase from 'firebase'
 import db from '@/firebase/init'
+import ErrorFeedback from '@/components/common/ErrorFeedback'
 
 export default {
     name: 'Login',
+    components: {
+        ErrorFeedback
+    },
     data() {
         return {
             email: '',
@@ -75,6 +75,7 @@ export default {
 }
 .g-box {
     margin: auto;
+    min-width: 350px;
     max-width: 50%;
     margin-top: 2em;
 }

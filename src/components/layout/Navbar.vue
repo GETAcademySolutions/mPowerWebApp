@@ -13,14 +13,21 @@
                     <b-nav-item router-link :to="{ name: 'Map' }">Kiosk map</b-nav-item>
                     <b-nav-item href="#">How it works</b-nav-item>
                     <b-nav-item href="#">Pricing</b-nav-item>
+                    <b-dropdown-divider v-if="user" ></b-dropdown-divider>
+                    <b-nav-item v-if="user" router-link :to="{ name: 'Profile' }">My Profile</b-nav-item>
+                    <b-nav-item v-if="user" router-link :to="{ name: 'BuyCredits' }">Buy Credits</b-nav-item>
+                    <b-nav-item v-if="user" router-link :to="{ name: 'History' }">History</b-nav-item>
+
                 </b-navbar-nav>
 
                 <!-- Right aligned nav items -->
                 <b-navbar-nav class="ml-auto">
                     <b-nav-form>
+                        <b-button v-if="!user" block size="sm" class="g-span" variant="success" router-link :to="{ name: 'Signup' }">Sign up</b-button> -->
                         <b-button v-if="!user" block size="sm" class="my-2 my-sm-0 g-span" variant="success" router-link :to="{ name: 'Login' }">Log in</b-button>
                         <b-button v-if="!user" block size="sm" class="my-2 my-sm-0 g-span" variant="success" router-link :to="{ name: 'Signup' }">Sign up</b-button>
                     </b-nav-form>
+                    <b-nav-item v-if="user" @click="logout()">Log out</b-nav-item>
 
                     <!-- <b-nav-item-dropdown text="Lang" right>
                         <b-dropdown-item href="#">EN</b-dropdown-item>
@@ -29,14 +36,13 @@
                         <b-dropdown-item href="#">FA</b-dropdown-item>
                     </b-nav-item-dropdown> -->
 
-                    <b-nav-item-dropdown v-if="user" right > 
-                        <!-- Using button-content slot -->
+                    <!-- <b-nav-item-dropdown v-if="user" right > 
                         <template slot="button-content">
                             <em>{{ this.user.email }}</em>
                         </template>
                         <b-dropdown-item href="#">Profile</b-dropdown-item>
                         <b-dropdown-item href="#" @click="logout()">Signout</b-dropdown-item>
-                    </b-nav-item-dropdown>
+                    </b-nav-item-dropdown> -->
                 </b-navbar-nav>
             </b-collapse>
         </b-navbar>
