@@ -7,7 +7,7 @@
         </div>
 
         <!-- list active charges -->
-        <charge-list :charges="charges"></charge-list>
+        <charging-list :charges="charges"></charging-list>
 
         <b-card class="g-card" style="background: #00b656; margin-top: 1em; border-radius: 8px">
             <h5 class="card-title" style="color: white">Charge with credits</h5>
@@ -27,13 +27,13 @@
 <script>
 import firebase from 'firebase'
 import db from '@/firebase/init'
-import ChargeList from '@/components/charge/ChargeList'
-import Charge from '@/components/classes/charge.js'
+import ChargingList from '@/components/charging/ChargingList'
+import Charging from '@/components/classes/charging.js'
 
 export default {
     name: 'HomePage',
     components: {
-        ChargeList
+        ChargingList
     },
     data() {
         return {
@@ -70,7 +70,7 @@ export default {
             })
         },
         simCharge() {
-            let c = new Charge(2)
+            let c = new Charging(2)
             this.charges.push(c)
         }
 

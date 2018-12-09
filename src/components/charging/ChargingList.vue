@@ -20,7 +20,7 @@
 
 <script>
 export default {
-    name: 'ChargeList',
+    name: 'ChargingList',
     props: ['charges'],
     data() {
         return {

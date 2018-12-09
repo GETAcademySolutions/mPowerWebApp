@@ -7,7 +7,6 @@ import Map from '@/components/map/Map'
 import HomePage from '@/components/home/HomePage'
 import Login from '@/components/auth/Login'
 import Signup from '@/components/auth/Signup'
-import Charge from '@/components/charge/Charge'
 
 Vue.use(Router)
 
@@ -47,11 +46,6 @@ const router =  new Router({
             path: '/signup',
             name: 'Signup',
             component: Signup
-        },
-        {
-            path: '/charge',
-            name: 'Charge',
-            component: Charge
         }
     ]
 })
