@@ -23,6 +23,7 @@
                 <!-- Right aligned nav items -->
                 <b-navbar-nav class="ml-auto">
                     <b-nav-form>
+                        <!-- <b-button v-if="!user" block size="sm" class="g-span" variant="success" router-link :to="{ name: 'Login' }">Log in</b-button>
                         <b-button v-if="!user" block size="sm" class="g-span" variant="success" router-link :to="{ name: 'Signup' }">Sign up</b-button> -->
                         <b-button v-if="!user" block size="sm" class="my-2 my-sm-0 g-span" variant="success" router-link :to="{ name: 'Login' }">Log in</b-button>
                         <b-button v-if="!user" block size="sm" class="my-2 my-sm-0 g-span" variant="success" router-link :to="{ name: 'Signup' }">Sign up</b-button>
