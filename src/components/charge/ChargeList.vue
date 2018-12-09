@@ -1,18 +1,18 @@
 <template> 
     <div class="component">
         <div v-for="elem in charges" :key="elem.id">
-            <b-card class="g-card">
+            <b-card class="g-card" style="border-radius: 8px">
                 <b-row>
-                    <b-col md="6">
-                        <p class="g-text"  style=" margin-bottom: 0">Port: {{ elem.port }}</p>
+                    <b-col>
+                        <p class="g-text"  style="margin-bottom: 0">Port: {{ elem.port }}</p>
                     </b-col>
                     <b-col class="">
                         <p class="g-text g-right" style="margin-bottom: 0">{{ elem.batteryLevel }}%</p>
                     </b-col>
                 </b-row>
-                <p class="g-text">Device: {{ elem.device }}</p>
-                <p class="g-count" style="margin-bottom: 0">{{ elem.timeLeft | secondsToTime }}</p>
-                <p class="g-text">Fully charged at {{ elem.finishedAt | formatTime }}</p>
+                <p class="g-text" style="margin-bottom: 0; margin-top: 0">Device: {{ elem.device }}</p>
+                <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.timeLeft | secondsToTime }}</p>
+                <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finishedAt | formatTime }}</p>
             </b-card>
         </div>
     </div>
@@ -36,7 +36,7 @@ export default {
     min-width: 360px;
     max-width: 500px;
     width: 50%;
-    margin: auto;
+    margin-top: 1em;
 }
 .g-text {
     font-weight: 530;

@@ -6,8 +6,21 @@
             <p v-else>You don't have any credits. <b-link style="color: green">Load mPower account?</b-link></p>
         </div>
 
+        <!-- list active charges -->
         <charge-list :charges="charges"></charge-list>
+
+        <b-card class="g-card" style="background: #00b656; margin-top: 1em; border-radius: 8px">
+            <h5 class="card-title" style="color: white">Charge with credits</h5>
+            <p class="card-title" style="color: white">Sign up and load your mPower account. Unlock a charger at eny time with your mobile phone</p>
+            <b-button block variant="outline-success" style="margin-top: 1.5em; color: white; border-color: white">Charge with credits</b-button>
+        </b-card>
         
+        <b-card class="g-card" style="margin-top: 1em; border-radius: 8px">
+            <h5 class="card-title">Charge with code</h5>
+            <p class="card-title">Pay for charging at one of the mPower stations and get a one time charging code.</p>
+            <b-button block variant="outline-secondary" style="margin-top: 1.5em">Charge with code</b-button>
+        </b-card>
+        <div style="margin-bottom: 2em"></div>
     </div>
 </template>
 
@@ -75,5 +88,13 @@ export default {
 </script>
 
 <style>
-
+.g-card {
+    min-width: 360px;
+    max-width: 500px;
+    width: 50%;
+    margin: auto;
+}
+.button-button_border: {
+    border-color: white;
+}
 </style>
