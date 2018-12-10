@@ -28,7 +28,7 @@
         </b-card>
 
         <!-- popup dialog -->
-        <b-modal ref="cargingStatus" hide-footer title="Success!">
+        <b-modal ref="chargingOk" hide-footer title="Success!">
             <b-media tag="li" class="my-4">
                 <b-img slot="aside" rounded="circle" blank width="50px" height="50px" blank-color="#777" alt="img" class="m-1" />
                 <p>Your device is now charing. Fully charged at {{ finishedAt | formatTime }}.</p>
@@ -67,8 +67,8 @@ export default {
             pluggedIn: 'no',
             isPluggedIn: false,
             portNo: null,
-            status: null,
-            finishedAt: null
+            finishedAt: null,
+            id: null
         }
     },
     methods: {
@@ -76,31 +76,49 @@ export default {
             console.log('portNumberChanged', this.portNo)
             this.portNo = portNo
         },
+        addToCharges(item) {
+            db.collection("charges").add(item)
+            .then((doc) => {
+                this.id = doc.id
+                console.log("charging added ", this.id);
+            })
+            .catch((error) => {
+                console.error("Error adding keyvalues", error);
+                this.feedback = error
+                return false
+            });
+            return true
+        },
         charge() {
+            this.feedback = null
             if (this.pluggedIn === 'yes' && !this.portNo) {
                 this.isPluggedIn = true
             } else {
-                console.log('start charging', this.portNo)
                 //await this.controller.turnOnOrOff(port, "01");
                 //const result = await this.controller.readValue();
-
-                this.controller.turnOnOrOff(port, "01")
+                if (!this.portNo)
+                    this.portNo = 'ff'
+                console.log('start charging', this.portNo)
+                this.$controller.turnOnOrOff(this.portNo, "01")
                 .then(() => {
-                    this.status = "Success!"
-                    chargeCredit()
+                    // charge the user account with 1 credit
+                    //chargeCredit()
                     let charging = new Charging(this.portNo)
-                    addToCollectiom(charging)
+                    this.finishedAt = charging.finishedAt
+                    addToCharges(charging)
+                    this.$emit('chargingStarted', charging)
+                    this.showSuccess()
                 })
                 .catch((error) => {
                     this.feedback = error
-                    this.status = "Error!"
                 })
+                this.$router.back()
             }
         },
-        showDialog() {
-            this.$refs.chargingStatus.show()
+        showSuccess() {
+            this.$refs.chargingOk.show()
         },
-        hideDialog () {
+        hideSuccess () {
             this.$refs.chargingStatus.hide()
         }
     },

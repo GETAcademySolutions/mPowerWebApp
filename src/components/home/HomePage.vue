@@ -8,9 +8,9 @@
             </div>
 
             <!-- list active charges -->
-            <charging-list :charges="charges" :message="message"></charging-list>
+            <charging-list v-on:stopCharging="stopCharging" :charges="charges" :message="feedback"></charging-list>
 
-            <error-feedback v-if="feedback" class="g-box" :message="feedback"></error-feedback>
+            <error-feedback v-if="feedback" v-on:closeErrorFeedback="closeErrorFeedback" class="g-box" :message="feedback"></error-feedback>
 
             <charge-with-credits v-on:startChargeWithCredits="startChargeWithCredits()"></charge-with-credits>
             <charge-with-code v-on:startChargeWithCode="startChargeWithCode()"></charge-with-code>
@@ -28,7 +28,6 @@ import ChargeWithCredits from '@/components/charging/ChargeWithCredits'
 import ChargeWithCode from '@/components/charging/ChargeWithCode'
 import {Charging, ChargingTimer} from '@/classes/charging.js'
 import ErrorFeedback from '@/components/common/ErrorFeedback'
-// import controller from '@/bluetooth/controller.js'
 
 export default {
     name: 'HomePage',
@@ -45,7 +44,6 @@ export default {
             profile: null,
             email: null,
             charges: [],
-            message: null,
             feedback: null,
             fontsize: '40px'
         }
@@ -54,6 +52,9 @@ export default {
 
     },
     methods: {
+        closeErrorFeedback() {
+            this.feedback = null
+        },
         checkCredits() {
             if (this.profile && this.profile.credits > 0)
                 return true
@@ -61,6 +62,16 @@ export default {
         },
         onBleDisconnected(event) {
             console.log('Ble disconnected!!')
+            this.feedback = event
+            this.$controller.reconnect(this.onBleDisconnected, this.onBleNotification)
+            .then(() => {
+                console.log('ble reconnected')
+            })
+            .catch((error) => {
+                console.log('reconnect to mPower station failed', error)
+                this.feedback = error.message
+                return false
+            })
         },
         onBleNotification(event) {
             console.log('Ble notification!!')
@@ -69,15 +80,16 @@ export default {
             if (!this.$controller.isConnected) {
                 console.log("Start charging controller = ", this.$controller);
                 let controllerName 
-                this.$controller.connect()
+                this.$controller.connect(this.onBleDisconnected, this.onBleNotification)
                 .then((name) => {
                     controllerName = name
-                    console.log('Connected to mPower')
+                    console.log('Connected to mPower station')
                     return true
                 })
                 .catch((error) => {
-                    console.log('Connect failed', error)
-                    alert(error)
+                    console.log('Connect to mPower station failed', error)
+                    // alert(error)
+                    this.feedback = error.message
                     return false
                 })
             }
@@ -85,22 +97,29 @@ export default {
         },
         startChargeWithCredits() {
             console.log('startChargeWithCredits')
+            this.feedback = null
             if (this.profile.credits < 0) {
-                //TODO: add timer to message
-                this.feedback = "Sorry, no credits left in your account"
+                //TODO: add timer to 
+                this.feedback = "Sorry, no credits left in your account. Please load your account."
                 return
             }
             if (this.connectToBluetooth()) {
                 this.$router.push({name: 'Charge'})
             } else {
                 //TODO: error; do not contineue
-                this.$router.push({name: 'Charge'})
             }
         },
         startChargeWithCode() {
             console.log('startChargeWithCode')
+            this.feedback = null
         },
-        removeCharging(id) {
+        chargingStarted(item) {
+            console.log('chargingStated event, update charges')
+            this.feedback = null
+            this.getCharges()
+        },
+        stopCharging(id) {
+            this.feedback = null
             if (id) {
                 db.collection('charges').doc(id).update({
                     stopTime: Date.now(), timeLeft: null
@@ -118,7 +137,7 @@ export default {
             }
         },
         getCharges() {
-            db.collection('charges').where('user_id', '==', this.user.uid)
+            db.collection('charges').where('userId', '==', this.user.uid)
             .where('timeLeft', '>', 0)
             .get()
             .then(snapshot => {
@@ -128,17 +147,15 @@ export default {
                     this.charges.push(charging)
                     console.log('charging added', charging)
 
-                    let timer = new ChargingTimer(c)
+                    let timer = new ChargingTimer(charging)
                     .then((id) => {
                         console.log('charging finished', id)
-                        this.message = "Fully charged!"
-                        //this.remooveCharging(id)
                     })
                 })
             })
             .catch(error=> {
                 console.log('fetching user charges', error)
-                alert(error)
+                this.feedback = error
             })
         },
         simCharge() {
@@ -146,8 +163,6 @@ export default {
             let timer = new ChargingTimer(charging)
             .then((id) => {
                 console.log('charging finished', id)
-                this.message = "Fully charged!"
-                //this.removeCharging(id)
             })
             this.charges.push(charging)
         },
@@ -190,7 +205,7 @@ export default {
 }
 .g-box {
     margin: auto;
-    min-width: 400px;
+    min-width: 360px;
     max-width: 480px;
     margin-top: 2em;
 }

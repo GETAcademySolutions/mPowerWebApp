@@ -15,7 +15,11 @@
                     <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.timeLeft | secondsToTime }}</p>
                     <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finishedAt | formatTime }}</p>
                 </div>
-                <error-feedback v-else :message="message" :fontsize="fontsize" style="margin-top: 0.3em; margin-bottom: 0.3em; font-size: 40px"></error-feedback>
+                <div v-else>
+                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">Fully Charged!</p>
+                    <!-- <b-link class="float-right" style="color: #3f4140; font-weight: 500">Close</b-link> -->
+                    <b-button @click="close(elem)" block variant="outline-secondary" style="margin-top: 0.5em">Close</b-button>
+                </div>
             </b-card>
         </div>
     </div>
@@ -32,7 +36,12 @@ export default {
     props: ['charges', 'message', 'fontsize'],
     data() {
         return {
-
+            reason: 'stopCharging'
+        }
+    },
+    methods: {
+        close(item) {
+            this.$emit(this.reason, item.id)
         }
     }
 
