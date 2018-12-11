@@ -1,3 +1,5 @@
+import { isNull } from "util";
+
 /*
  *
  *
@@ -59,6 +61,9 @@ class mPowerBluetoothControllerDummy {
       this.cmdCharacteristicUuid   = "0000beee-6cc7-425b-ad67-fccdafa33672";
       this.alertCharacteristicUuid = "0000beef-6cc7-425b-ad67-fccdafa33672";
       this.isConnected = false;
+      this.response = {
+        message: null
+      }
     }
  
     onDisconnected(event) {
@@ -173,15 +178,34 @@ class mPowerBluetoothControllerDummy {
         // console.log("Turn on/off, activated");
 
         return new Promise((resolve, reject) => {
+            if (!this.isConnected){
+              this.response.message = 'No Bluetooth connection'
+              reject(this.response)
+            }
             this.service.getCharacteristic(this.cmdCharacteristicUuid)
             .then((characteristic) => {
                 characteristic.writeValue(data)
             })
             .then(() => {
-              console.log("Turn on/off, activated");
-              resolve('success')
+                // Getting Battery Level Characteristic...
+                return this.service.getCharacteristic(this.alertCharacteristicUuid);
             })
-            .catch(error => { 
+            .then(characteristic => {
+                // Reading ack/nackl message
+                return characteristic.readValue();
+            })
+            .then(value => {
+                console.log('ack/nack value=' + value.getUint16(0));
+                let resp = value.getUint8(0)
+                if (resp == 0) {
+                  resolve(value.getUint8(1))
+                } else {
+                  this.response.errorCode = value.getUint8(1)
+                  this.response.message = 'failed to turn on/off power'
+                  reject(this.response)
+                }
+            })
+            .catch(error => {
                 console.log(error)
                 reject(error)
             })

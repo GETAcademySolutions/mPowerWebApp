@@ -2,7 +2,7 @@
     <div>
         <b-navbar toggleable="md" style="padding-left: 2em; padding-right: 2em">
             <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
-            <b-navbar-brand router-link :to="{ name: 'HomePage' }" href="#" style="color: green; font-style: italic">mPower</b-navbar-brand>
+            <b-navbar-brand router-link :to="{ name: 'HomePage' }" href="#" style="color: #00b656; font-style: italic">mPower</b-navbar-brand>
             <b-collapse is-nav id="nav_collapse">
                 <b-navbar-nav>
                     <!-- <b-nav-item v-if="user" router-link :to="{ name: 'Charge' }">Charge</b-nav-item>

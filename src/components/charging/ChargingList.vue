@@ -7,13 +7,13 @@
                         <p class="g-text"  style="margin-bottom: 0">Port: {{ elem.port }}</p>
                     </b-col>
                     <b-col class="">
-                        <p class="g-text g-right" style="margin-bottom: 0">{{ elem.batteryLevel }}%</p>
+                        <p class="g-text g-right" style="margin-bottom: 0">{{ elem.battery_level }}%</p>
                     </b-col>
                 </b-row>
                 <p class="g-text" style="margin-bottom: 0; margin-top: 0">Device: {{ elem.device }}</p>
-                <div v-if="elem.timeLeft > 0">
-                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.timeLeft | secondsToTime }}</p>
-                    <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finishedAt | formatTime }}</p>
+                <div v-if="elem.time_left > 0">
+                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.time_left | secondsToTime }}</p>
+                    <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finished_at | formatTime }}</p>
                 </div>
                 <div v-else>
                     <p class="g-count" style="margin-bottom: 0; margin-top: 0">Fully Charged!</p>

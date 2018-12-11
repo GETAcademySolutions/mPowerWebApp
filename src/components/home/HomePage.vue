@@ -4,7 +4,7 @@
             <div class="text-center" style="margin-top: 2em">
                 <h4 v-if="user">Hi, {{ user.displayName  }}</h4>
                 <p v-if="profile && checkCredits()">My Credits: {{ profile.credits }}</p>
-                <p v-else>You don't have any credits. <b-link style="color: green">Load mPower account?</b-link></p>
+                <p v-else>You don't have any credits. <b-link style="color: #00b656">Load mPower account?</b-link></p>
             </div>
 
             <!-- list active charges -->
@@ -26,7 +26,7 @@ import db from '@/firebase/init'
 import ChargingList from '@/components/charging/ChargingList'
 import ChargeWithCredits from '@/components/charging/ChargeWithCredits'
 import ChargeWithCode from '@/components/charging/ChargeWithCode'
-import {Charging, ChargingTimer} from '@/classes/charging.js'
+import {Charging, CloneCharging, ChargingTimer} from '@/classes/charging.js'
 import ErrorFeedback from '@/components/common/ErrorFeedback'
 
 export default {
@@ -77,58 +77,49 @@ export default {
             console.log('Ble notification!!')
         },
         connectToBluetooth() {
-            if (!this.$controller.isConnected) {
-                console.log("Start charging controller = ", this.$controller);
-                let controllerName 
-                this.$controller.connect(this.onBleDisconnected, this.onBleNotification)
-                .then((name) => {
-                    controllerName = name
-                    console.log('Connected to mPower station')
-                    return true
-                })
-                .catch((error) => {
-                    console.log('Connect to mPower station failed', error)
-                    // alert(error)
-                    this.feedback = error.message
-                    return false
-                })
-            }
-            return true
+            console.log("Start charging controller = ", this.$controller);
+            let controllerName 
+            this.$controller.connect(this.onBleDisconnected, this.onBleNotification)
+            .then((name) => {
+                controllerName = name
+                console.log('Connected to mPower station')
+                this.$router.push({name: 'Charge'})
+            })
+            .catch((error) => {
+                console.log('Connect to mPower station failed', error)
+                // alert(error)
+                this.feedback = error.message
+            })
         },
         startChargeWithCredits() {
             console.log('startChargeWithCredits')
             this.feedback = null
             if (this.profile.credits < 0) {
                 //TODO: add timer to 
-                this.feedback = "Sorry, no credits left in your account. Please load your account."
+                this.feedback = "Oh! You don't have any credits left. Load your mPower account."
                 return
             }
-            if (this.connectToBluetooth()) {
-                this.$router.push({name: 'Charge'})
+            if (!this.$controller.isConnected) {
+                this.connectToBluetooth()
             } else {
-                //TODO: error; do not contineue
+                this.$router.push({name: 'Charge'})
             }
         },
         startChargeWithCode() {
             console.log('startChargeWithCode')
             this.feedback = null
         },
-        chargingStarted(item) {
-            console.log('chargingStated event, update charges')
-            this.feedback = null
-            this.getCharges()
-        },
         stopCharging(id) {
             this.feedback = null
             if (id) {
                 db.collection('charges').doc(id).update({
-                    stopTime: Date.now(), timeLeft: null
+                    stopT_tme: Date.now(), time_left: 0
                 })
                 .then(() => {
                     console.log("charging successfuølly updated", id);
                 }).catch(error => {
                     console.error("updating charge failed", id, error);
-                    alert(error)
+                    this.feedback = error.message
                 })
             }
             let ix = this.charges.findIndex(e => e.id === id)
@@ -136,30 +127,50 @@ export default {
                 this.charges.splice(ix, 1)
             }
         },
-        getCharges() {
-            db.collection('charges').where('userId', '==', this.user.uid)
-            .where('timeLeft', '>', 0)
+        getCharges() {  
+            //this.charges = []
+            db.collection('charges').where('user_id', '==', this.user.uid)
+            //.where('timeLeft', '>', 0)
             .get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
-                    let charging = doc.data
-                    charging.id = doc.id
-                    this.charges.push(charging)
-                    console.log('charging added', charging)
-
-                    let timer = new ChargingTimer(charging)
-                    .then((id) => {
-                        console.log('charging finished', id)
-                    })
+                    let charging = new CloneCharging(doc.data())
+                    if (charging.time_left > 0) {
+                        console.log('charging added', charging)
+                        charging.id = doc.id
+                        this.charges.push(charging)
+                        let timer = new ChargingTimer(charging)
+                        .then((id) => {
+                           console.log('charging finished', id)
+                        })
+                    }
                 })
             })
             .catch(error=> {
                 console.log('fetching user charges', error)
-                this.feedback = error
+                this.feedback = error.message
             })
+
+            // db.collection("charges").where("user_id", "==", "this.user.uid")
+            // .onSnapshot((querySnapshot) => {
+            //         querySnapshot.forEach((doc) => {
+            //         let charging = new CloneCharging(doc.data())
+            //         console.log('charging added', charging)
+            //         if (charging.time_left > 0) {
+            //             charging.id = doc.id
+            //             this.charges.push(charging)
+
+            //             let timer = new ChargingTimer(charging)
+            //             .then((id) => {
+            //                 console.log('charging finished', id)
+            //             })
+            //         }
+            //     })
+            //     console.log("Current chargings: ", this.charges.join(", "));
+            // })
         },
-        simCharge() {
-            let charging = new Charging(2, this.user.uid)
+        simCharge(port) {
+            let charging = new Charging(port, this.user.uid)
             let timer = new ChargingTimer(charging)
             .then((id) => {
                 console.log('charging finished', id)
@@ -190,7 +201,9 @@ export default {
 
         if (this.user) {
             this.getProfile()
-            this.simCharge()
+            this.getCharges()
+            // /this.simCharge(2)
+            // /this.simCharge(3)
         }
     }
 }

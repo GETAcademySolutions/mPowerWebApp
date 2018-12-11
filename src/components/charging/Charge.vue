@@ -1,30 +1,25 @@
 <template>
     <div class="container component">
         <b-card class="g-box" style="border: none">
-            <div v-if="!isPluggedIn" >
-                <div class="text-center">
-                    <h4>Charge</h4>
-                </div>
-                <b-card style="margin-top: 1em; margin-bottom: 1em; border-color: darkgrey"> 
-                    <div class="card-subtitle">Jambo Kiosk (11)</div>
-                </b-card>
-                <div>
-                    <b-form-group label="Select device">
-                        <b-form-radio-group v-model="device" :options="deviceOptions"
-                                            name="device" stacked>
-                        </b-form-radio-group>
-                    </b-form-group>
-                    <b-form-group label="Have you already plugged in a device?">
-                        <b-form-radio-group v-model="pluggedIn" :options="pluggedInOptions"
-                                            name="pluggedIn" stacked>
-                        </b-form-radio-group>
-                    </b-form-group>
-                </div>
+            <div class="text-center">
+                <h4>Charge</h4>
             </div>
-           
-            <charge-port v-else v-on:portNumberChanged="portNumberChanged"></charge-port>
-
-            <b-button @click="charge()" block style="background: #00b656">Start charging</b-button>
+            <b-card style="margin-top: 1em; margin-bottom: 1em; border-color: darkgrey"> 
+                <div class="card-subtitle">Jambo Kiosk (11)</div>
+            </b-card>
+            <div>
+                <b-form-group label="Select device">
+                    <b-form-radio-group v-model="device" :options="deviceOptions"
+                                        name="device" stacked>
+                    </b-form-radio-group>
+                </b-form-group>
+                <b-form-group label="Have you already plugged in a device?">
+                    <b-form-radio-group v-model="pluggedIn" :options="pluggedInOptions"
+                                        name="pluggedIn" stacked>
+                    </b-form-radio-group>
+                </b-form-group>
+            </div>
+            <b-button @click="charge()" block style="background: #00b656">Charge</b-button>
         </b-card>
 
         <!-- popup dialog -->
@@ -34,7 +29,6 @@
                 <p>Your device is now charing. Fully charged at {{ finishedAt | formatTime }}.</p>
             </b-media>
         </b-modal>
-
     </div>
 </template>
 
@@ -65,19 +59,17 @@ export default {
                 { text: 'No', value: 'no' }
             ],
             pluggedIn: 'no',
-            isPluggedIn: false,
             portNo: null,
             finishedAt: null,
             id: null
         }
     },
     methods: {
-        portNumberChanged(portNo) {
-            console.log('portNumberChanged', this.portNo)
-            this.portNo = portNo
-        },
         addToCharges(item) {
-            db.collection("charges").add(item)
+            console.log('addToCharges')
+            db.collection("charges").add({
+                port: item.port, device: item.device, id: null, user_id: item.user_id, battery_level: item.battery_level,
+                start_time: item.start_time, time_left: item.time_left, finished_at: item.finished_at})
             .then((doc) => {
                 this.id = doc.id
                 console.log("charging added ", this.id);
@@ -85,34 +77,34 @@ export default {
             .catch((error) => {
                 console.error("Error adding keyvalues", error);
                 this.feedback = error
-                return false
-            });
-            return true
+            })
+        },
+        chargeCredit() {
+            // charge the user account with 1 credit
+            console.log('chargeCredit')
         },
         charge() {
             this.feedback = null
-            if (this.pluggedIn === 'yes' && !this.portNo) {
-                this.isPluggedIn = true
+            if (this.pluggedIn === 'yes') {
+                this.$router.push('ChargePort')
             } else {
-                //await this.controller.turnOnOrOff(port, "01");
-                //const result = await this.controller.readValue();
-                if (!this.portNo)
-                    this.portNo = 'ff'
-                console.log('start charging', this.portNo)
-                this.$controller.turnOnOrOff(this.portNo, "01")
-                .then(() => {
-                    // charge the user account with 1 credit
-                    //chargeCredit()
-                    let charging = new Charging(this.portNo)
-                    this.finishedAt = charging.finishedAt
-                    addToCharges(charging)
-                    this.$emit('chargingStarted', charging)
-                    this.showSuccess()
+                this.$controller.turnOnOrOff('ff', "01")
+                .then((port) => {
+                    console.log('turnOnOrOff', port)
+                    this.portNo = port
+                    this.chargeCredit()
+                    let charging = new Charging(port, this.user.uid)
+                    this.finishedt = charging.finished_at
+                    console.log('charging', charging)
+                    this.addToCharges(charging)
+                    console.log('Charge -> ChargeConnect')
+                    this.$router.push({ name: 'ChargeConnect', params: { port: port }})
                 })
                 .catch((error) => {
-                    this.feedback = error
+                    console.log('charge error', error)
+                    this.feedback = error.message
                 })
-                this.$router.back()
+                // this.$router.back()
             }
         },
         showSuccess() {
@@ -137,5 +129,11 @@ export default {
     min-width: 350px;
     max-width: 400px;
     margin-top: 2em;
+}
+.g-circle {
+    width: 40px;
+    height: 40px;
+    border-color: #00b656;
+    border-width: 10px;
 }
 </style>

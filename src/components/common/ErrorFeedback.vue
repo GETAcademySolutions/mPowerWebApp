@@ -1,8 +1,7 @@
 <template>
     <div class="component">
-        <b-card class="g-msg">
+        <b-card class="g-msg" @click="closeErrorFeedback()" style="cursor: pointer">
             <h6 class="card-subtitle" >{{ message }}
-                <b-link class="float-right" @click="closeErrorFeedback()" style="color: #3f4140">Close</b-link>
             </h6>
         </b-card>
     </div>

@@ -8,6 +8,8 @@ import Login from '@/components/auth/Login'
 import Signup from '@/components/auth/Signup'
 import HomePage from '@/components/home/HomePage'
 import Charge from '@/components/charging/Charge'
+import ChargePort from '@/components/charging/ChargePort'
+import ChargeConnect from '@/components/charging/ChargeConnect'
 
 Vue.use(Router)
 
@@ -51,7 +53,17 @@ const router =  new Router({
         {
             path: '/charge',
             name: 'Charge',
-            component: Charge,
+            component: Charge
+        },
+        {
+            path: '/chargeport',
+            name: 'ChargePort',
+            component: ChargePort
+        },
+        {
+            path: '/chargeconnec',
+            name: 'ChargeConnect',
+            component: ChargeConnect
         }
     ]
 })

@@ -3,7 +3,7 @@
         <b-card>
             <h4>Create an account</h4>
             <p class="">
-                Already have an account? <router-link :to="{ name: 'Login' }" style="color: green">Log in</router-link>
+                Already have an account? <router-link :to="{ name: 'Login' }" style="color: #00b656">Log in</router-link>
             </p>
             <error-feedback v-if="feedback" :message="feedback"></error-feedback>
             <b-form class="g-top" @submit.prevent="signup">
@@ -33,7 +33,7 @@
                 </b-form-group>
             </b-form>
             <p>By clicking the button, you agree to<br>
-                <b-link v-b-modal.consent style="color: green">mPowers Policy & terms of Use</b-link>
+                <b-link v-b-modal.consent style="color: #00b656">mPowers Policy & terms of Use</b-link>
             </p>
         </b-card>
 

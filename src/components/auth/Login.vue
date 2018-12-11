@@ -2,7 +2,7 @@
     <div class="container">
         <b-card class="g-box g-top">
             <h4 class="">Log in</h4>
-            <p>Need a mPower account? <b-link router-link :to="{ name: 'Signup' }" style="color: green">Create account</b-link></p>
+            <p>Need a mPower account? <b-link router-link :to="{ name: 'Signup' }" style="color: #00b656">Create account</b-link></p>
             <error-feedback v-if="feedback" :message="feedback"></error-feedback>
             <b-form class="g-top" @submit.prevent="login">
                 <b-form-group id="email" label="" label-for="email">
@@ -18,8 +18,8 @@
             </b-form>
             <b-button class="g-top" @click="login()" variant="success" block>Log in</b-button>
             <p style="margin-top: 0.7em">
-                <b-link @click="forgotUsername()" style="color: green">Forgot username?</b-link>
-                <b-link @click="forgotPassword()" style="color: green">Forgot password?</b-link>
+                <b-link @click="forgotUsername()" style="color: #00b656">Forgot username?</b-link>
+                <b-link @click="forgotPassword()" style="color: #00b656">Forgot password?</b-link>
             </p>
         </b-card>
      </div>
