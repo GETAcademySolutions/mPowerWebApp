@@ -1,7 +1,9 @@
 <template>
     <div class="container">
+        <keep-alive>
+
         <b-card class="g-box" style="border: none">
-            <div class="text-center" style="margin-top: 2em">
+            <div class="text-center">
                 <h4 v-if="user">Hi, {{ user.displayName  }}</h4>
                 <p v-if="profile && checkCredits()">My Credits: {{ profile.credits }}</p>
                 <p v-else>You don't have any credits. <b-link style="color: #00b656">Load mPower account?</b-link></p>
@@ -17,6 +19,7 @@
 
             <div style="margin-bottom: 2em"></div>
         </b-card>
+        </keep-alive>
     </div>
 </template>
 
@@ -75,6 +78,13 @@ export default {
         },
         onBleNotification(event) {
             console.log('Ble notification!!')
+            let value = event.target.value
+            let a = [];
+            for (let i = 0; i < value.byteLength; i++) {
+              a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+            //   console.log('a[' + i + ']='+ a[i])
+            } 
+            console.log('> ' + a.join(' '));
         },
         connectToBluetooth() {
             console.log("Start charging controller = ", this.$controller);
@@ -94,7 +104,7 @@ export default {
         startChargeWithCredits() {
             console.log('startChargeWithCredits')
             this.feedback = null
-            if (this.profile.credits < 0) {
+            if (this.profile.credits == 0) {
                 //TODO: add timer to 
                 this.feedback = "Oh! You don't have any credits left. Load your mPower account."
                 return
@@ -110,10 +120,18 @@ export default {
             this.feedback = null
         },
         stopCharging(id) {
+            console.log('stopCharging')
             this.feedback = null
+            let ix = this.charges.findIndex(e => e.id === id)
+            if (~ix) {
+                this.charges.splice(ix, 1)
+            }
+        },
+        updateCharging(id) {
             if (id) {
+                console.log('updateCharging')
                 db.collection('charges').doc(id).update({
-                    stopT_tme: Date.now(), time_left: 0
+                    stop_time: Date.now(), time_left: 0
                 })
                 .then(() => {
                     console.log("charging successfuølly updated", id);
@@ -121,10 +139,6 @@ export default {
                     console.error("updating charge failed", id, error);
                     this.feedback = error.message
                 })
-            }
-            let ix = this.charges.findIndex(e => e.id === id)
-            if (~ix) {
-                this.charges.splice(ix, 1)
             }
         },
         getCharges() {  
@@ -142,6 +156,10 @@ export default {
                         let timer = new ChargingTimer(charging)
                         .then((id) => {
                            console.log('charging finished', id)
+                           this.updateCharging(id)
+                        })
+                        .catch((error) => {
+                            console.log('Feil', error)
                         })
                     }
                 })
@@ -220,6 +238,5 @@ export default {
     margin: auto;
     min-width: 360px;
     max-width: 480px;
-    margin-top: 2em;
 }
 </style>

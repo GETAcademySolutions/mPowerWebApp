@@ -38,13 +38,12 @@ import db from '@/firebase/init'
 import mPowerBluetoothController from "@/bluetooth/mPowerBluetoothController";
 import mPowerBluetoothControllerDummy from "@/bluetooth/mPowerBluetoothController";
 import {Charging, ChargingTimer} from '@/classes/charging.js'
-import ChargePort from '@/components/charging/ChargePort'
 
 
 export default {
     name: 'Charge',
     components: {
-        ChargePort
+
     },
     data() {
         return {
@@ -86,7 +85,7 @@ export default {
         charge() {
             this.feedback = null
             if (this.pluggedIn === 'yes') {
-                this.$router.push('ChargePort')
+                this.$router.push({ name: 'ChargePort' })
             } else {
                 this.$controller.turnOnOrOff('ff', "01")
                 .then((port) => {
@@ -94,7 +93,7 @@ export default {
                     this.portNo = port
                     this.chargeCredit()
                     let charging = new Charging(port, this.user.uid)
-                    this.finishedt = charging.finished_at
+                    this.finishedAt = charging.finished_at
                     console.log('charging', charging)
                     this.addToCharges(charging)
                     console.log('Charge -> ChargeConnect')
@@ -104,7 +103,6 @@ export default {
                     console.log('charge error', error)
                     this.feedback = error.message
                 })
-                // this.$router.back()
             }
         },
         showSuccess() {

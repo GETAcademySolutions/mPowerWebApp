@@ -2,7 +2,7 @@
     <div class="cotainer">
         <b-card style="border: none">
 
-        <div class="g-box text-center" style="margin-top: 30%">
+        <div class="g-box text-center" style="margin-top: 20%">
             <div class="circle"><p style="font-size: 40px; color: #00b656">{{ port }}</p></div>
             <h4 style="color: #00b656">Connect to port number {{ port }}!</h4>
             <b-button @click="onOk" block variant="outline-success" style="margin-top: 4em">OK</b-button>

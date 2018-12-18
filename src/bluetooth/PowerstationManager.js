@@ -16,7 +16,7 @@ class PowerstationManager
         //this.controller.
     }
 
-    async connwct() {
+    async connect() {
         return new Promise((resolve, reject) => {
             try {
                 if (!this.controller.isConnected) {
