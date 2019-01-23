@@ -159,6 +159,7 @@ export default {
                     .then(cred => {
                         user = cred.user
                         this.data.user_id = user.uid
+                        this.data.email = user.email
                         this.data.timestamp = Date.now()
                         return ref.set(this.data)
                     }).then(() => {

@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <keep-alive>
-
+        <div v-if="viewHome">
         <b-card class="g-box" style="border: none">
             <div class="text-center">
                 <h4 v-if="user">Hi, {{ user.displayName  }}</h4>
@@ -19,6 +19,23 @@
 
             <div style="margin-bottom: 2em"></div>
         </b-card>
+        </div>
+
+        <div v-else-if="viewCharge">
+            <charge v-on:onStartCharge="onStartCharge"></charge>
+        </div>
+
+        <div v-else-if="viewPluggedIn">
+            <charge-port v-on:onStartChargePluggedIn="onStartChargePluggedIn" :charge="charge"></charge-port>
+        </div>
+
+        <div v-else-if="viewUnplugged">
+            <charge-connect v-on:onSuccess="onSuccess" :port="port"></charge-connect>
+        </div>
+
+        <div v-else-if="viewSuccess">
+            <success-dialog v-on:onSuccess="onSuccess" :charge="charge"></success-dialog>
+        </div>
         </keep-alive>
     </div>
 </template>
@@ -26,11 +43,27 @@
 <script>
 import firebase from 'firebase'
 import db from '@/firebase/init'
+import moment from 'moment'
+import Charge from '@/components/charging/Charge'
 import ChargingList from '@/components/charging/ChargingList'
 import ChargeWithCredits from '@/components/charging/ChargeWithCredits'
 import ChargeWithCode from '@/components/charging/ChargeWithCode'
+import ChargePort from '@/components/charging/ChargePort'
+import ChargeConnect from '@/components/charging/ChargeConnect'
+import SuccessDialog from '@/components/charging/SuccessDialog'
 import {Charging, CloneCharging, ChargingTimer} from '@/classes/charging.js'
 import ErrorFeedback from '@/components/common/ErrorFeedback'
+
+const VIEW_NONE = 0, VIEW_HOME = 1, VIEW_CHARGE = 2, VIEW_PLUGGED_IN = 3, VIEW_UNPLUGGED = 4, VIEW_SUCCESS = 5;
+// Commands to mPower
+const TURN_POWER_OFF = '00', TURN_POWER_ON = '01'
+// Notifications from mPower
+const ACK_MESSAGE = 0, NACK_MESSAGE = 1, PORT_CONNECTED = 2, PORT_DISCONNECTED = 3, POWER_ON = 4, POWER_OFF = 5, PORT_STATUS = 6
+// Error codes in NACK_MESSAGE: 0xE2 - 0xE4
+const ERROR_BASE = 0xE2, ERROR_MAX = 0xE4
+const ERROR_MESSAGE = [ 'Illegal command', 'Illegal port number', 'Illegal port status', 'No available ports' ]
+const ONE_CHARGE = 1
+
 
 export default {
     name: 'HomePage',
@@ -38,21 +71,51 @@ export default {
         ChargingList,
         ChargeWithCredits,
         ChargeWithCode,
+        Charge,
+        ChargeConnect,
+        ChargePort,
+        SuccessDialog,
         ErrorFeedback
     },
     data() {
         return {
             user: null,
             slug: null,
-            profile: null,
             email: null,
-            charges: [],
+            currentView: VIEW_HOME,
+            charge: null,
             feedback: null,
             fontsize: '40px'
         }
     },
     computed: {
-
+        port() {
+            return this.charge.port
+        },
+        charges() {
+            return this.$store.state.charges
+        },
+        profile() {
+            return this.$store.state.profile
+        },
+        location() {
+            return this.$store.state.location
+        },
+        viewHome() {
+            return this.currentView == VIEW_HOME;
+        },
+        viewCharge() {
+            return this.currentView == VIEW_CHARGE;
+        },
+        viewUnplugged() {
+            return this.currentView == VIEW_UNPLUGGED;
+        },
+        viewPluggedIn() {
+            return this.currentView == VIEW_PLUGGED_IN;
+        },
+        viewSuccess() {
+            return this.currentView == VIEW_SUCCESS;
+        }
     },
     methods: {
         closeErrorFeedback() {
@@ -63,10 +126,26 @@ export default {
                 return true
             return false
         },
+        getLocation(id) {
+            if (!this.$store.state.location.id) {
+                this.$store.state.location = this.$store.state.database.getLocation(id)
+            }
+        },
+        turnPowerOn(port) {
+            console.log('turnPowerOn', port)
+            this.$store.state.controller.turnOnOrOff(port, TURN_POWER_ON)
+            .then(() => {
+                // Power turned on successfully
+                // Waiting for ACK_MESSAGE/NACK_MESSAGE
+            })
+            .catch((error) => {
+                // Failed to send command
+            })
+        },
         onBleDisconnected(event) {
             console.log('Ble disconnected!!')
             this.feedback = event
-            this.$controller.reconnect(this.onBleDisconnected, this.onBleNotification)
+            this.$store.state.controller.reconnect(this.onBleDisconnected, this.onBleNotification)
             .then(() => {
                 console.log('ble reconnected')
             })
@@ -77,23 +156,113 @@ export default {
             })
         },
         onBleNotification(event) {
-            console.log('Ble notification!!')
             let value = event.target.value
             let a = [];
             for (let i = 0; i < value.byteLength; i++) {
-              a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
-            //   console.log('a[' + i + ']='+ a[i])
+                // a.push('0x' + ('00' + value.getUint8(i).toString(16)).slice(-2));
+                a.push(value.getUint8(i));
             } 
-            console.log('> ' + a.join(' '));
+            console.log('Ble notification!! ' + a.join(' '))
+            this.getLocation(a[0])
+            switch (a[1]) {
+            case ACK_MESSAGE:
+                console.log('ack message')
+                this.onChargeStarted(a[2])
+                break;
+            case NACK_MESSAGE:
+                console.log('nack message')
+                this.onError(a[2])
+                break;
+            case PORT_CONNECTED:
+                console.log('connected port')
+                this.onUsbConnected(a[2])
+                break;
+            case PORT_DISCONNECTED:
+                console.log('disconnected port')
+                this.onUsbDisconnected(a[2])
+                break;
+            case POWER_ON:
+                console.log('turned on power')
+                this.onUsbPowerOn(a[2])
+                break;
+            case POWER_OFF:
+                console.log('turned off power')
+                this.onUsbPowerOff(a[2])
+                break;
+            case PORT_STATUS:
+                console.log('port status')
+                this.onUsbPortStatus(a)
+                break;
+            default:
+                console.log('unknown message')
+                break;
+            }
+        },
+        onSuccess(port) {
+            this.$store.state.database.claimCredit(this.user.uid, ONE_CHARGE)
+            console.log('onSuccess', this.charge)
+            this.$store.state.database.addToCharges(this.charge)
+
+            this.currentView = VIEW_HOME
+            this.getCharges()
+        },
+        onError(errorCode) {
+            this.currentView = VIEW_HOME
+            let emsg = ""
+            if (errorCode >= ERROR_BASE && errorCode <= ERROR_MAX)
+                emsg = ERROR_MESSAGE[errorCode - ERROR_BASE]
+            this.feedback = "An error occured. " + emsg           
+        },
+        onStartCharge(data) {
+            console.log('onStartCharge', data)
+            this.charge = data
+            if (this.charge.pluggedIn) {
+                this.currentView = VIEW_PLUGGED_IN
+            } else {
+                // unplugged - let the mPower station select a free USB port
+                this.turnPowerOn(this.charge.port)
+            }
+        },
+        onStartChargeUnplugged(port) {
+        },
+        onStartChargePluggedIn(port) {
+            console.log('onStartChargePluggedIn', port, this.charge.port)
+            this.turnPowerOn(port)
+        },
+        onChargeStarted(port) {
+            this.charge.port = port
+            console.log('onChargeStarted', this.charge)
+            // if (this.charge.pluggedIn) {
+            //     this.currentView = VIEW_SUCCESS
+            // } else {
+            //     this.currentView = VIEW_UNPLUGGED
+            // }
+            this.currentView = VIEW_SUCCESS
+        },
+        onUsbConnected(port) {
+
+        },
+        onUsbDisconnected(port) {
+
+        },
+        onUsbPowerOn(port) {
+
+        },
+        onUsbPowerOff(port) {
+
+        },
+        onUsbPortStatus(status) {
+
         },
         connectToBluetooth() {
-            console.log("Start charging controller = ", this.$controller);
+            console.log("Start charging controller = ", this.$store.state.controller);
             let controllerName 
-            this.$controller.connect(this.onBleDisconnected, this.onBleNotification)
+            this.$store.state.controller.connect(this.onBleDisconnected, this.onBleNotification)
             .then((name) => {
                 controllerName = name
                 console.log('Connected to mPower station')
-                this.$router.push({name: 'Charge'})
+                // this.$router.push({name: 'Charge', params: {port: 0xff}})
+                this.currentView = VIEW_CHARGE
             })
             .catch((error) => {
                 console.log('Connect to mPower station failed', error)
@@ -109,15 +278,19 @@ export default {
                 this.feedback = "Oh! You don't have any credits left. Load your mPower account."
                 return
             }
-            if (!this.$controller.isConnected) {
+            if (!this.$store.state.location.id) {
+                this.$store.state.location.id = 0
+                this.$store.state.location.name = 'mPower Station'
+            }
+            if (!this.$store.state.controller.isConnected) {
                 this.connectToBluetooth()
             } else {
-                this.$router.push({name: 'Charge'})
+                // this.$router.push({name: 'Charge', params: {port: 0xff}})
+                this.currentView = VIEW_CHARGE
             }
         },
         startChargeWithCode() {
-            console.log('startChargeWithCode')
-            this.feedback = null
+            console.log('startChargeWithCode..')
         },
         stopCharging(id) {
             console.log('stopCharging')
@@ -142,9 +315,9 @@ export default {
             }
         },
         getCharges() {  
-            //this.charges = []
+            this.$store.state.charges = []
             db.collection('charges').where('user_id', '==', this.user.uid)
-            //.where('timeLeft', '>', 0)
+            // .where('time_left', '>', 0)
             .get()
             .then(snapshot => {
                 snapshot.forEach(doc => {
@@ -152,8 +325,9 @@ export default {
                     if (charging.time_left > 0) {
                         console.log('charging added', charging)
                         charging.id = doc.id
-                        this.charges.push(charging)
-                        let timer = new ChargingTimer(charging)
+                        // if (!charging in this.charges)
+                            this.charges.push(charging)
+                        let timer = new ChargingTimer(charging, this.$store.state.database)
                         .then((id) => {
                            console.log('charging finished', id)
                            this.updateCharging(id)
@@ -168,32 +342,6 @@ export default {
                 console.log('fetching user charges', error)
                 this.feedback = error.message
             })
-
-            // db.collection("charges").where("user_id", "==", "this.user.uid")
-            // .onSnapshot((querySnapshot) => {
-            //         querySnapshot.forEach((doc) => {
-            //         let charging = new CloneCharging(doc.data())
-            //         console.log('charging added', charging)
-            //         if (charging.time_left > 0) {
-            //             charging.id = doc.id
-            //             this.charges.push(charging)
-
-            //             let timer = new ChargingTimer(charging)
-            //             .then((id) => {
-            //                 console.log('charging finished', id)
-            //             })
-            //         }
-            //     })
-            //     console.log("Current chargings: ", this.charges.join(", "));
-            // })
-        },
-        simCharge(port) {
-            let charging = new Charging(port, this.user.uid)
-            let timer = new ChargingTimer(charging)
-            .then((id) => {
-                console.log('charging finished', id)
-            })
-            this.charges.push(charging)
         },
         getProfile() {
             db.collection('users').where('user_id', '==', this.user.uid)
@@ -201,7 +349,7 @@ export default {
             .then(snapshot => {
                 snapshot.forEach(doc => {
                     this.slug = doc.id
-                    this.profile = doc.data()
+                    this.$store.state.profile = doc.data()
                     this.email = this.user.email
                     console.log('profile', this.profile)
                 })
@@ -215,28 +363,14 @@ export default {
     },
     created() {
         this.user = firebase.auth(). currentUser
-        console.log('HomePage', this.user)
-
-        if (this.user) {
-            this.getProfile()
-            this.getCharges()
-            // /this.simCharge(2)
-            // /this.simCharge(3)
-        }
+        console.log('HomePage', this.user, this.$store.state.location)
+        this.getProfile()
+        this.getCharges()
+        console.log('getCharges', Object.keys(this.charges))
     }
 }
 </script>
 
 <style>
-.g-card {
-    min-width: 360px;
-    max-width: 500px;
-    width: 50%;
-    margin: auto;
-}
-.g-box {
-    margin: auto;
-    min-width: 360px;
-    max-width: 480px;
-}
+
 </style>

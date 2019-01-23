@@ -47,6 +47,7 @@ class mPowerBluetoothControllerDummy {
     
     constructor() {
       this.serviceUuid = '0000f00d-6cc7-425b-ad67-fccdafa33672'
+    //   this.serviceUuid = '000f00d-6cc7-425b-ad67-fcafcda33672'
       this.options = {
         filters: [{
           name: "mPower"

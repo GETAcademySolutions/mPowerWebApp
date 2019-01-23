@@ -32,6 +32,17 @@ exports.checkAlias = functions.https.onCall((data, context) => {
     }
 })
 
+exports.updateChargeTime = functions.https.onCall((data, context) => {
+    db.collection("charges").doc(data.item.id).update({ time_left: data.item.time_left })
+    .then(() => {
+        console.log('stop_time updated', data.item.stop_time);
+    })
+    .catch((error) => {
+        console.error("Error update time_left failed", error);
+    })
+
+})
+
 exports.checkHttp = functions.https.onCall((data, context) => {
     try {
         // return request('http://www.google.com')
@@ -57,69 +68,50 @@ exports.checkHttp = functions.https.onCall((data, context) => {
     }
 })
 
-// exports.httpRequest = functions.https.onRequest((req, res) => {
-//     res.send("Hello from Firebase!");
-// });
+// payments/mpesa:
+// payments/transactions:
+// Auto (Auto number)
+// TransactionType (Varchar 40)
+// TransID (Varchar 40)
+// TransTime (Varchar 40)
+// TransAmount double
+// BusinessShortCode Varchar 15
+// BillRefNumber (Varchar 40)
+// InvoiceNumber (Varchar 40)
+// ThirdPartyTransID (Varchar 40)
+// MSISDN (Varchar 15)
+// FirstName (Varchar 50)
+// MiddleName (Varchar 50)
+// LastName (Varchar 50)
 
-// var generateSafaricomToken = function(consumerKey, consumerSecret, grantType) {
-//     let token = '';
+var saveAccessToken = function(accessToken, expiresIn) {
+    try {
+        let expiresAt = Date.now() + expiresIn
+        const ref = admin.firestore().collection('payment/mpesa/token')
+        return ref.set( { access_token: accessToken, expires_in: expiresIn, expires_at: expiresAt })
+        .then(() => {
+            //
+        })
+        .catch((error) => {
+            throw new functions.https.HttpsError('failed to update database')
+        })
+    }
+    catch (error) {
+        throw new functions.https.HttpsError('failed to update database')
+    }
 
-//     var options = {
-//         method: 'get',
-//         url: '/oauth/v1/generate?grant_type=client_credentials HTTP/1.1',
-//         host: 'sandbox.safaricom.co.ke',
-//         Authorization: 'Basic U1BMd0xkMnVBM29ub1BSWENKRjZiV3FXR3hOdkE4Qlo6NldPZ2hNQUdUdUVZS2pYMw==',
-//         'Content-Type': 'application/json';
-//     }
-//     //demo purposes only
-//     return token;
-// }
+}
 
-// exports.getSafaricomToken = functions.https.onCall((data, context) => {
-//     const consumer_key = "amSA8r3EkWWD4kd7bu6UkPHCOvGtkfiz";
-//     const consumer_secret = "PYLbVnxqfmGG5O1l";
-//     // const url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials";
-//     const auth = Buffer.from(consumer_key + ":" + consumer_secret, 'base64').toString();
-//     try {
-//         var options = {
-//             method: 'get',
-//             url: "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-//             headers: {
-//                 "Authorization" : auth
-//             }
-//         }
-//     }
-//     catch (error) {
-//         return {status: 'nok..4', error: error}
-//     }
-//     try {
-//         return axios( {
-//             method: 'get',
-//             url: "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials",
-//             headers: {
-//                 "Authorization" : auth
-//             }
-//         })
-//         .then((body) => {
-//             //   {
-//             //     "access_token": "hsHoclSD53UC3657NAD3d0qBE8cA",
-//             //     "expires_in": "3599"
-//             //   }
-//             // return { status: 'ok', access_token: body.access_token, expires_in: body.expires_in }     
-//             return { status: 'ok', result: body }     
-//         })
-//         .catch((error) => {
-//             return {status: 'nok', error: error}
-//         })
-//     }
-//     catch (error) {
-//         return {status: 'nok..', error: error}
-//     }
-// })
+// ExpiryDate	
+// Lipa Na Mpesa Online Shortcode:	174379
+// Lipa Na Mpesa Online Passkey:
+// bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919
+// Generated Initiator Security Credential:
+// N/yXNOT4azUzEd+4h2vFYtDqvAejCgKaCsCYLuN0rU/Rii9leGi/7Fos6HEPA17SKso95CV9Om6tRuIIApeY6snvorQplXI4JkgHqLMz9w9z76gkTBsm8uQJrn52PlbhoIBsR+aChDLgBrQed7APwXBV3f/ZsGBixRgCOp/IlY/212ffIraks0A5K62YdcQypg86+hfG9hz9nU2kHzF/Yhvbapv+TNB4ObA5u8AdWWsIYS6iOEJgLTtUFObIA/9+euxiaZ7QX/GNfldRcNCgSG7+86mj9RsyYpeTJvrfGr7G7aIxpkvplCr98wSCWAWqzqFtscZCI3B4n9aA0arzBA==
 
 exports.getSafaricomToken = functions.https.onCall((data, context) => {
-    const consumer_key = "amSA8r3EkWWD4kd7bu6UkPHCOvGtkfiz"
-    const consumer_secret = "PYLbVnxqfmGG5O1l"
+    const consumer_key = functions.config().mpesa.consumerkey;
+    const consumer_secret = functions.config().mpesa.consumersecret;
     const url = "https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     // const auth = Buffer.from("Basic " + consumer_key + ":" + consumer_secret, 'base64').toString()
     const auth = "Basic " + new Buffer(consumer_key + ":" + consumer_secret).toString("base64");
@@ -144,4 +136,12 @@ exports.getSafaricomToken = functions.https.onCall((data, context) => {
         return {status: 'nok..', error: error}
     }
 })
+
+const xx = function(access_token) {
+    const header  =  {
+        Authorization : "Bearer " + accesstoken,
+        ContentType : "application/json"
+    }
+
+}
 

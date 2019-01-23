@@ -12,11 +12,13 @@
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.11",
     "firebase": "^5.7.0",
-    "moment": "^2.22.2",
+    "moment": "^2.23.0",
     "slugify": "^1.3.4",
     "vue": "^2.5.2",
+    "vue-material": "^1.0.0-beta-10.2",
     "vue-pdf": "^4.0.4",
-    "vue-router": "^3.0.1"
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

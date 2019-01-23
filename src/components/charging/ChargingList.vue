@@ -10,13 +10,13 @@
                         <p class="g-text g-right" style="margin-bottom: 0">{{ elem.battery_level }}%</p>
                     </b-col>
                 </b-row>
-                <p class="g-text" style="margin-bottom: 0; margin-top: 0">Device: {{ elem.device }}</p>
+                <p class="g-text">Device: {{ elem.device }}</p>
                 <div v-if="elem.time_left > 0">
-                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">{{ elem.time_left | secondsToTime }}</p>
+                    <p class="g-count">{{ elem.time_left | secondsToTime }}</p>
                     <p class="g-text" style="margin-bottom: 0">Fully charged at {{ elem.finished_at | formatTime }}</p>
                 </div>
                 <div v-else>
-                    <p class="g-count" style="margin-bottom: 0; margin-top: 0">Fully Charged!</p>
+                    <p class="g-count">Fully Charged!</p>
                     <!-- <b-link class="float-right" style="color: #3f4140; font-weight: 500">Close</b-link> -->
                     <b-button @click="close(elem)" block variant="outline-secondary" style="margin-top: 0.5em">Close</b-button>
                 </div>

@@ -3,12 +3,12 @@ import firestore from 'firebase/firestore'
 
 // Initialize Firebase
 var config = {
-    apiKey: "AIzaSyBu_pEPCOPZOYFUjaLhrZFtG6WosQVkNNQ",
-    authDomain: "mpower-45ade.firebaseapp.com",
-    databaseURL: "https://mpower-45ade.firebaseio.com",
-    projectId: "mpower-45ade",
-    storageBucket: "",
-    messagingSenderId: "797177883443"
+    apiKey: "AIzaSyA-NxIhOuLHtkQUnk58iwcF43k1OVCflqI",
+    authDomain: "mpower-c19fa.firebaseapp.com",
+    databaseURL: "https://mpower-c19fa.firebaseio.com",
+    projectId: "mpower-c19fa",
+    storageBucket: "mpower-c19fa.appspot.com",
+    messagingSenderId: "428555416050"
 };
 
 const firebaseApp = firebase.initializeApp(config);

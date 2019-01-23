@@ -1,15 +1,18 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import firebase from 'firebase'
-import HelloWorld from '@/components/HelloWorld'
 import StartPage from '@/components/startpage/StartPage'
 import Map from '@/components/map/Map'
 import Login from '@/components/auth/Login'
 import Signup from '@/components/auth/Signup'
 import HomePage from '@/components/home/HomePage'
+import BuyCredit from '@/components/credits/BuyCredit'
 import Charge from '@/components/charging/Charge'
 import ChargePort from '@/components/charging/ChargePort'
 import ChargeConnect from '@/components/charging/ChargeConnect'
+import History from '@/components/log/History'
+import Profile from '@/components/Profile/Profile'
+import ProfileView from '@/components/Profile/ProfileView'
 
 Vue.use(Router)
 
@@ -17,11 +20,6 @@ const router =  new Router({
     mode: 'history',
     base: process.env.BASE_URL,
     routes: [
-        {
-            path: '/hello',
-            name: 'HelloWorld',
-            component: HelloWorld
-        },
         {
             path: '/',
             name: 'StartPage',
@@ -51,19 +49,55 @@ const router =  new Router({
             }
         },
         {
+            path: '/credits',
+            name: 'BuyCredit',
+            component: BuyCredit,
+            props: true,
+            meta: {
+                requiresAuth: true
+            }
+        },
+        {
             path: '/charge',
             name: 'Charge',
-            component: Charge
+            component: Charge,
+            // props: true
         },
         {
             path: '/chargeport',
             name: 'ChargePort',
-            component: ChargePort
+            component: ChargePort,
+            // props: true
         },
         {
-            path: '/chargeconnec',
+            path: '/chargeconnect',
             name: 'ChargeConnect',
-            component: ChargeConnect
+            component: ChargeConnect,
+            // props: true
+        },
+        {
+            path: '/history',
+            name: 'History',
+            component: History,
+            // props: true
+        },
+        {
+            path: '/profileedit',
+            name: 'Profile',
+            component: Profile,
+            // props: true,
+            meta: {
+                requiresAuth: true
+            }
+        },
+        {
+            path: '/profile',
+            name: 'ProfileView',
+            component: ProfileView,
+            // props: true,
+            meta: {
+                requiresAuth: true
+            }
         }
     ]
 })

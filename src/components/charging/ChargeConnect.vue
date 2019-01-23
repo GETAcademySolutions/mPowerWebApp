@@ -1,11 +1,11 @@
 <template>
-    <div class="cotainer">
+    <div class="cotainer component">
         <b-card style="border: none">
 
         <div class="g-box text-center" style="margin-top: 20%">
             <div class="circle"><p style="font-size: 40px; color: #00b656">{{ port }}</p></div>
             <h4 style="color: #00b656">Connect to port number {{ port }}!</h4>
-            <b-button @click="onOk" block variant="outline-success" style="margin-top: 4em">OK</b-button>
+            <b-button @click="onOk()" block variant="outline-success" style="margin-top: 4em">OK</b-button>
         </div>
         </b-card>
     </div>
@@ -14,19 +14,20 @@
 <script>
 export default {
     name: 'ChargeConnect',
+    props: ['port'],
     data() {
         return {
-            port: null
+            reason: 'onSuccess'
         }
     },
     methods: {
         onOk() {
-           this.$router.push({ name: 'HomePage'})
+            console.log('onOk')
+            this.$emit(this.reason, this.charge.port)
         }
     },
     mounted() {
-        this.port = this.$route.params.port
-        console.log('Chargeconnect connected()', this.port)
+        console.log('Chargeconnect mounted()', this.charge)
     }
 
 }

@@ -3,33 +3,36 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import { store } from '@/store'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import moment from 'moment'
+import {Database} from "@/classes/database.js";
 import {mPowerBluetoothController, mPowerBluetoothControllerDummy} from "@/bluetooth/mPowerBluetoothController.js";
 // import {PowerstationManager, PowerstationManagerDummy} from "@/bluetooth/PowerstationManager.js";
+import VueMaterial from 'vue-material'
+import 'vue-material/dist/vue-material.min.css'
 
-//const controller = new mPowerBluetoothController();
-
+Vue.use(VueMaterial);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false
-
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  router,
+  store,                // store: store
+  router,               // router: router
   components: { App },
   template: '<App/>'
 })
 
-Vue.prototype.$controller =  new mPowerBluetoothController()
-new Vue({
-    beforeCreate: function() {
-        console.log('Ve instance', this.$controller.isConnected)
-    }
-})
+// Vue.prototype.$controller =  new mPowerBluetoothController()
+// new Vue({
+//     beforeCreate: function() {
+//         console.log('Ve instance', this.$store.state.controller.isConnected)
+//     }
+// })
 
 Vue.filter('secondsToTime', function(secs) {
     if (secs) {

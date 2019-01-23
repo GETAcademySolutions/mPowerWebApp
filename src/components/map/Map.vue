@@ -1,5 +1,5 @@
 <template>
-    <div class="component">
+    <div class="container component">
         <h3>Map</h3>
     </div>
 </template>

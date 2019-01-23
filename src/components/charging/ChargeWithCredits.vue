@@ -11,6 +11,7 @@
 <script>
 export default {
     name: 'ChargeWithCredits',
+    props: ['port'],
     data() {
         return {
             reason: 'startChargeWithCredits'

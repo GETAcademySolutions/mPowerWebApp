@@ -14,8 +14,8 @@
                     <b-nav-item href="#">How it works</b-nav-item>
                     <b-nav-item href="#">Pricing</b-nav-item>
                     <b-dropdown-divider v-if="user" ></b-dropdown-divider>
-                    <b-nav-item v-if="user" router-link :to="{ name: 'Profile' }">My Profile</b-nav-item>
-                    <b-nav-item v-if="user" router-link :to="{ name: 'BuyCredits' }">Buy Credits</b-nav-item>
+                    <b-nav-item v-if="user" router-link :to="{ name: 'ProfileView' }">My Profile</b-nav-item>
+                    <b-nav-item v-if="user" router-link :to="{ name: 'BuyCredit' }">Buy Credits</b-nav-item>
                     <b-nav-item v-if="user" router-link :to="{ name: 'History' }">History</b-nav-item>
 
                 </b-navbar-nav>
@@ -104,6 +104,28 @@ export default {
 </script>
 
 <style>
+.g-card {
+    min-width: 360px;
+    max-width: 500px;
+    width: 50%;
+    margin: auto;
+}
+.g-box {
+    margin: auto;
+    min-width: 360px;
+    max-width: 480px;
+}
+.g--card {
+    border: none;
+    /* border-top: none;
+    border-left: none;
+    border-right: none; */
+    margin: 0;
+    padding: 0;
+}
+.g-mt {
+    margin-top: 1em;
+}
 h1,h2,h3,h4,h5,h6,p {
     font-family:  Verdana, Geneva, Tahoma, sans-serif;
 }
@@ -138,5 +160,17 @@ a:hover {
 }
 .g-bottom {
     margin-bottom: 2em;
+}
+.g-size {
+    width: 100px;
+    height: 100px;
+    max-width: 100px;
+    max-height: 100px;
+}
+.g-box {
+    margin: auto;
+    min-width: 480px;
+    max-width: 480px;
+    margin-top: 2em;
 }
 </style>
