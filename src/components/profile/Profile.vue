@@ -98,7 +98,6 @@ export default {
                 this.profile.timestamp = Date.now()
                 db.collection("users").doc(this.slug).set(this.profile, {merge: true})
                 .then(() => {
-                    // console.log("profile updated", this.slug);
                     this.$emit(this.reason)
                 })
                 .catch((error) => {
@@ -119,11 +118,9 @@ export default {
                     this.slug = doc.id
                     this.profile = doc.data()
                     this.email = this.user.email
-                    // console.log('profile', this.profile)
                 })
             })
             .catch(error=> {
-                console.error('fetching user profile', error)
                 alert(error)
             })
         }

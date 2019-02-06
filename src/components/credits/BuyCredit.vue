@@ -78,12 +78,10 @@ export default {
     },
     methods: {
         ok() {
-            console.log('ok')
             this.$router.push({ name: 'HomePage'})
         },
         buy() {
             try {
-                console.log('buy', this.$store.state.profile.slug)
                 let token = this.$store.state.database.getAccessToken()
                 this.$store.state.database.addCredits(this.$store.state.profile.slug, this.amount)
                 this.success = true
@@ -93,7 +91,6 @@ export default {
             }
         },
         countDownChanged (dismissCountDown) {
-            console.log('countDownChanged', this.dismissSecs)
             this.dismissCount++
             if (this.dismissCount == this.dismissSecs) {
                 this.$router.push({ name: 'HomePage'})

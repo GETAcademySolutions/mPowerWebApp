@@ -22,14 +22,9 @@ export default {
     },
     methods: {
         onOk() {
-            console.log('onOk')
             this.$emit(this.reason, this.charge.port)
         }
-    },
-    mounted() {
-        console.log('Chargeconnect mounted()', this.charge)
     }
-
 }
 </script>
 

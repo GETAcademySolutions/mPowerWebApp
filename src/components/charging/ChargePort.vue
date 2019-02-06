@@ -38,15 +38,13 @@ export default {
     },
     methods: {
         ok() {
-            console.log('ok')
-            // this.$router.push({ name: 'HomePage'})
             this.$emit(this.reason, this.charge.port)
         },
         startCharge() {
-            if (this.charge.port > 10) {
-                this.feedback = 'Port number must be in the range 1 to 10'
-                return
-            }
+            // if (this.charge.port > 10) {
+            //     this.feedback = 'Port number must be in the range 1 to 10'
+            //     return
+            // }
             this.$emit(this.reason, this.charge.port)
         }
     }

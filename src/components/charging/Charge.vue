@@ -63,7 +63,6 @@ export default {
         startCharge() {
             this.charge.device = this.device
             this.charge.pluggedIn = this.pluggedIn == 'yes'
-            console.log('startCharge', this.charge)
             this.$emit(this.reason, this.charge)
         }
     },

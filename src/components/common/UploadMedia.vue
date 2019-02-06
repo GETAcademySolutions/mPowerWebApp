@@ -104,7 +104,6 @@ export default {
             if (formData) {
                 const file = formData.get('media')
                 let elem = { filename: file.name, type: file.type, url: formData.get('url'), description: '' }
-                // console.log('add media', elem)
                 if (this.profile) {
                     // this.profile.picture = elem.url
                     this.$emit(this.reason, elem)
@@ -125,17 +124,14 @@ export default {
                 .then (url => {
                     this.currentStatus = STATUS_SUCCESS;
                     formData.append('url', url)
-                    console.log('upload, url=', url)
                     this.add(formData)
                 })
                 .catch((error) => {
-                    console.error(error)
                     this.uploadError = error.response;
                     this.currentStatus = STATUS_FAILED;
                 })
             })
             .catch((error) => {
-                console.error(error)
                 this.uploadError = error.response;
                 this.currentStatus = STATUS_FAILED;
             })
@@ -164,7 +160,6 @@ export default {
                     }
                 });
                 this.links.push(this.link)
-                // console.log('link', this.link)
                 this.currentStatus = STATUS_SUCCESS;
             } catch(error) {
                 this.uploadError = error.message

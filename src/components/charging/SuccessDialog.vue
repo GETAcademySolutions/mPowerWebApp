@@ -42,26 +42,18 @@ export default {
     },
     methods: {
         ok() {
-            console.log('ok')
-            // this.$router.push({ name: 'HomePage'})
             this.$emit(this.reason, this.charge.port)
         },
         countDownChanged (dismissCountDown) {
-            console.log('countDownChanged', this.dismissSecs)
             this.dismissCount++
             if (this.dismissCount == this.dismissSecs) {
-                // this.$router.push({ name: 'HomePage'})
                 this.$emit(this.reason, this.charge.port)
             }
             this.dismissCountDown = dismissCountDown
         },
     },
     mounted() {
-        // this.success = true
         this.dismissCountDown = this.dismissSecs
-    },
-    created() {
-        console.log('SuccessDialog', this.charge)
     }
 }
 </script>
